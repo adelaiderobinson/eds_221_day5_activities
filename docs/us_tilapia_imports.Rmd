@@ -1,0 +1,41 @@
+---
+title: "us_tilapia_imports"
+author: "Adelaide Robinson"
+date: '2022-08-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+```
+Use pivot_longer() to reshape the data into long format (currently, the variable “year” is spread across multiple columns). Remember to store the output so you will be able to use the reshaped data this creates.
+```{r}
+
+us_tilapia_imports <- read_csv(here("data","us_tilapia_imports.csv"))
+us_tilapia_imports_long <- us_tilapia_imports |> pivot_longer(cols = -country, names_to = "year", values_to = "total_imports") |> mutate(num_year = as.numeric(year))
+class(us_tilapia_imports_long$year)
+#change to numeric 
+
+grouped_imports <- us_tilapia_imports_long |> group_by(num_year) |> summarize(ncol = sum(num_year))
+```
+
+```{r}
+ggplot(grouped_imports, aes(x =num_year, y = ncol)) + geom_point() + labs ( x ="year", y ="total_imports")
+
+ggsave(here("figs","tila_graph.png"))
+
+filter_data <- us_tilapia_imports_long |> filter(country %in% c("Ecuador","Honduras", "Costa Rica", "Mexico"))
+
+
+
+```
+Create a ggplot graph of total US tilapia imports over time, for those four countries in the subset you created above, separated by country. Update axis labels, add a title, customize your color scheme, update the theme. Export a .jpg of your graph to figs.
+```{r}
+ggplot(data = filter_data, aes(x = num_year, y = total_imports)) +geom_point(aes(color = country)) + labs( title = "Total imports by year", x = "year", y = "total tilapia imports") + theme_minimal()
+
+ggsave(here("figs","plotbycountry.png"))
+```
+

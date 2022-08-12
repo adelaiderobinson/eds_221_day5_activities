@@ -5,26 +5,24 @@ date: '2022-08-12'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+library(tidyverse)
+library(here)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+source(here("src","storm_runoff.R"))
 ```
 
-## Including Plots
+In a code chunk in your runoff_volumes.Rmd, use your predict_runoff function to estimate stormwater volume for a watershed of 182 acres, over a range of estimates for the impervious fraction (from 0.6 to 0.8, by increments of 0.01). Note: you do not need to write a for loop here.
 
-You can also embed plots, for example:
+```{r}
+i_seq <- seq(from = 0.6, to = 0.8, by = 0.01)
+new_runoff <- predict_runoff(A = 182, IA =i_seq )
+#make it a dataframe
+runoff_df <-data.frame(i_seq,new_runoff)
+runoff_plot <-ggplot(runoff_df, aes(x = i_seq, y = new_runoff)) + geom_point() + geom_line() + labs( title = " Groundwater Runoff", x = "Fraction of watershed impervious", y = "Volume of expected runoff (ft3)")
+ggsave(here("figs","runoffplot.png"))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
